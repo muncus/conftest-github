@@ -1,0 +1,7 @@
+name: "github"
+version: "0.0.1"
+usage: conftest github ORG/REPO
+description: |-
+  A Conftest plugin for policy checks against repository configuration on github. It uses the github cli (cli.github.com).
+  Usage: conftest github ORG/REPO -p policy.rego
+command: $CONFTEST_PLUGIN_DIR/github-conftest.sh
