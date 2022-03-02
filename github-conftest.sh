@@ -26,9 +26,21 @@ check_command "gh"
 if [[ ($# -eq 0) || ($1 == "--help") || ($1 == "-h") ]]; then
     # No commands or the --help flag passed and we'll show the usage instructions
     usage
-elif [[ $# -ge 1 ]]; then
-    # assume evrything is a repo right now.
-    repo_json=$(gh api repos/${1})
-    echo $repo_json | ${CONFTEST_BIN} test ${@:2} -
+fi
 
+subcommand=$1
+shift;
+if [[ "${subcommand}" == "repo" ]] ; then
+    # Grab the repo object, and feed it back to conftest.
+    repo_json=$(gh api repos/${1})
+    echo $repo_json | ${CONFTEST_BIN} test -n github.${subcommand} ${@:2} -
+
+elif [[ "${subcommand}" == "pr" ]]; then
+    # PR takes "org/repo N" syntax.
+    pr_json=$(gh api repos/${1}/pulls/${2})
+    shift; shift; # eat the params we used above.
+    echo $pr_json | ${CONFTEST_BIN} test -n github.${subcommand} ${@} -
+else
+  echo "Invalid arguments"
+  usage
 fi
