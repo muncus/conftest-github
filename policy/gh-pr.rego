@@ -30,3 +30,16 @@ deny_not_mergeable[msg] {
   not is_mergeable
   msg = sprintf("PR not mergeable (%s): see %s for details", [input.mergeable, input.html_url])
 }
+
+# pretty naive- just checks for any prefix.
+# consider building this as a partial result, so orgs can add their own
+# restrictions.
+is_conventional_commit(s) {
+  regex.match(`^[a-z_]+\((.+\))?: .+`, s)
+}
+
+deny_unconventional_title[{"msg": msg, "details": details}]{
+  not is_conventional_commit(input.title)
+  msg = "Please use Conventional Commit style for PR titles."
+  details = sprintf("see conventionalcommits.org (found '%s')", [input.title])
+}
