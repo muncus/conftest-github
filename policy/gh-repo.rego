@@ -18,7 +18,7 @@ warn_default_branch[msg]{
 valid_license_keys := ["apache-2.0"]
 deny_supported_license[msg]{
   not has_valid_license
-  msg := sprintf("Unsupported license found '%s', should be one of: %s", [ input.license.key, valid_license_keys])
+  msg := sprintf("Unsupported license found '%s', should be one of: %s", [ object.get(input, "license.key", "none"), valid_license_keys])
 }
 has_valid_license {
   input.license.key == valid_license_keys[_]
