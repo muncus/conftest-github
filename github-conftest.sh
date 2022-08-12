@@ -33,7 +33,23 @@ shift;
 if [[ "${subcommand}" == "repo" ]] ; then
     # Grab the repo object, and feed it back to conftest.
     repo_json=$(gh api repos/${1})
-    echo $repo_json | ${CONFTEST_BIN} test -n github.${subcommand} ${@:2} -
+    default_branch=$(echo "$repo_json" | jq -r '.default_branch')
+    branch_protection_json=$(gh api repos/${1}/branches/${default_branch}/protection)
+    # If this command fails, use an empty object, instead of the error provided.
+    if [ "${?}" != "0" ]; then
+      branch_protection_json="{}"
+    fi
+    # TODO: consider parsing this into a sub-object for easier checking.
+    owners=$(curl --silent -L https://raw.githubusercontent.com/${1}/${default_branch}/.github/CODEOWNERS)
+    metadoc=$(cat <<-EOD
+    { "repo": ${repo_json},
+      "default_branch_protection": ${branch_protection_json},
+      "code_owners": "${owners}" }
+EOD
+)
+
+    # echo $metadoc
+    echo $metadoc | ${CONFTEST_BIN} ${@:2} -
 
 elif [[ "${subcommand}" == "pr" ]]; then
     # PR takes "org/repo N" syntax.
