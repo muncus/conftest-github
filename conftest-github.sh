@@ -14,18 +14,20 @@ function check_command () {
 
 function usage () {
     echo "Conftest plugin to allow policy checks on github objects."
-    echo "Currently supports Repositories."
+    echo "conftest github repo ORG/REPO"
 }
 
 CONFTEST_BIN="conftest"
 
 # Check the required commands are available on the PATH
 check_command "gh"
+check_command "jq"
 
 
-if [[ ($# -eq 0) || ($1 == "--help") || ($1 == "-h") ]]; then
+if [[ ($# -lt 2) || ($1 == "--help") || ($1 == "-h") ]]; then
     # No commands or the --help flag passed and we'll show the usage instructions
     usage
+    exit
 fi
 
 subcommand=$1
@@ -57,6 +59,6 @@ elif [[ "${subcommand}" == "pr" ]]; then
     shift; shift; # eat the params we used above.
     echo $pr_json | ${CONFTEST_BIN} test -n github.${subcommand} ${@} -
 else
-  echo "Invalid arguments"
+  echo "Invalid arguments: \"${@}\""
   usage
 fi
