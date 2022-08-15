@@ -36,7 +36,7 @@ if [[ "${subcommand}" == "repo" ]] ; then
     # Grab the repo object, and feed it back to conftest.
     repo_json=$(gh api repos/${1})
     default_branch=$(echo "$repo_json" | jq -r '.default_branch')
-    branch_protection_json=$(gh api repos/${1}/branches/${default_branch}/protection)
+    branch_protection_json=$(gh api repos/${1}/branches/${default_branch}/protection 2>/dev/null)
     # If this command fails, use an empty object, instead of the error provided.
     if [ "${?}" != "0" ]; then
       branch_protection_json="{}"
