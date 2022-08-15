@@ -53,18 +53,26 @@ warn_update_branch_button[msg]{
 # Branch Protection Rules
 ######
 
+# Catch the case where we cannot fetch branch protection.
+deny_permission [msg]{
+  object.get(input, "default_branch_protection.url", "empty") == "empty"
+  #input != null
+  #msg := sprintf("bloop: %s", [object.get(input, "default_branch_protection.url", "f")])
+  msg := "Failed to fetch branch protection data. Branch protection policies were not checked."
+}
+
 warn_review_count[msg] {
   input.default_branch_protection.required_approving_review_count < 2
   contains(input.repo.name, "samples")
   msg := "Review count of 2 is recommended for language samples."
 }
 
-fail_review_count[msg] {
+deny_review_count[msg] {
   input.default_branch_protection.required_approving_review_count < 1
   msg := "Review count should be at least 1."
 }
 
-fail_codeowners_required[msg] {
+deny_codeowners_required[msg] {
   input.default_branch_protection.require_code_owner_reviews != true
   msg := "Code Owner reviews should be required"
 }
